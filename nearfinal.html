@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roast Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #0d47a1;
+            --accent-color: #d32f2f;
+            --success-color: #388e3c;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --error-color: #d32f2f;
+            --text-color: #212121;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            color: var(--text-color);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+        }
+        
+        h1, h2, h3, h4, h5 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .app-title {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .developer {
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+        
+        .input-section, .report-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            margin-top: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--primary-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e8eaf6;
+            font-weight: 600;
+        }
+        
+        input, button, select {
+            padding: 8px 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-weight: 600;
+            width: auto;
+            transition: background-color 0.2s;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #b71c1c;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #2e7d32;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .roaster-plan {
+            margin-top: 15px;
+        }
+        
+        .green-coffee-summary {
+            margin-bottom: 15px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .input-card {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 5px;
+            background-color: var(--card-bg);
+        }
+        
+        .actions {
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .component-group {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+        }
+        
+        .error {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 3px;
+        }
+        
+        .inner-table {
+            margin: 0;
+        }
+        
+        .inner-table th, 
+        .inner-table td {
+            padding: 6px;
+            font-size: 13px;
+        }
+        
+        .machine-plan {
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
+        }
+        
+        .compact {
+            margin-bottom: 5px;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sale-order-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
+        }
+        
+        .add-order-btn {
+            margin-top: 10px;
+        }
+        
+        .coffee-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-end;
+        }
+        
+        .coffee-row .form-group {
+            flex: 1;
+        }
+        
+        .remove-coffee-btn {
+            background-color: var(--accent-color);
+            padding: 8px 12px;
+            margin-bottom: 5px;
+        }
+        
+        .remove-order-btn {
+            background-color: var(--accent-color);
+            padding: 8px 12px;
+            margin-top: 10px;
+        }
+        
+        .generate-roasted-btn {
+            margin: 15px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="app-title">Roast Planner</div>
+        <div class="developer">Developed by Akash Justin Ovian, © 2025. All Rights Reserved.</div>
+    </div>
+
+    <div class="input-section">
+        <h2 class="section-title">Input Parameters</h2>
+        
+        <div class="input-grid">
+            <div class="input-card">
+                <h3 class="compact">Basic Information</h3>
+                <div class="form-group">
+                    <label for="personnel">Name of Personnel:</label>
+                    <input type="text" id="personnel" placeholder="Enter name" value="">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" value="">
+                </div>
+                <div class="form-group">
+                    <label for="company">Company Name:</label>
+                    <input type="text" id="company" placeholder="Enter company name" value="">
+                </div>
+            </div>
+
+            <div class="input-card">
+                <h3 class="compact">Roasting Machines</h3>
+                <div class="form-group">
+                    <label for="numMachines">Number of Roasting Machines:</label>
+                    <input type="number" id="numMachines" min="1" value="1">
+                </div>
+                <div id="machineInputs">
+                    <!-- Machine inputs will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="input-card">
+                <h3 class="compact">Green Coffees</h3>
+                <div class="form-group">
+                    <label for="numGreenCoffees">Number of Green Coffees:</label>
+                    <input type="number" id="numGreenCoffees" min="1" value="1">
+                </div>
+                <div id="greenCoffeeInputs">
+                    <!-- Green coffee inputs will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <div class="input-card" style="margin-top: 15px;">
+            <h3 class="compact">Sale Orders</h3>
+            <div id="saleOrderInputs">
+                <div class="sale-order-row" data-order-id="1">
+                    <div class="form-group">
+                        <label for="clientName1">Client Name:</label>
+                        <input type="text" id="clientName1" placeholder="Enter client name" value="">
+                    </div>
+                    <div id="coffeeInputs1">
+                        <div class="coffee-row" data-coffee-id="1">
+                            <div class="form-group">
+                                <label for="roastedCoffeeName1_1">Roasted Coffee Name:</label>
+                                <input type="text" id="roastedCoffeeName1_1" placeholder="Enter coffee name" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="roastedCoffeeQty1_1">Volume Ordered (kg):</label>
+                                <input type="number" id="roastedCoffeeQty1_1" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="isCustom1_1">Custom Coffee?</label>
+                                <select id="isCustom1_1">
+                                    <option value="no">No</option>
+                                    <option value="yes">Yes</option>
+                                </select>
+                            </div>
+                            <button type="button" class="remove-coffee-btn" onclick="removeCoffeeRow(1, 1)">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-success add-order-btn" onclick="addCoffeeRow(1)">Add Coffee</button>
+                    <button type="button" class="remove-order-btn" onclick="removeSaleOrder(1)">Remove Order</button>
+                </div>
+            </div>
+            <button type="button" class="btn-success" onclick="addSaleOrder()">Add Sale Order</button>
+        </div>
+
+        <div class="input-card" style="margin-top: 15px;" id="roastedCoffeeSection">
+            <h3 class="compact">Roasted Coffees</h3>
+            <div id="roastedCoffeeInputs">
+                <!-- Roasted coffee inputs will be added here dynamically based on sale orders -->
+            </div>
+        </div>
+    </div>
+
+    <div class="actions" id="generateReportSection" style="display: none;">
+        <div class="button-group">
+            <button id="generateReport" class="btn-success">Generate Report</button>
+            <button id="resetForm" class="btn-danger">Reset Form</button>
+        </div>
+    </div>
+
+    <div id="reportSection" class="report-section hidden">
+        <div class="report-header">
+            <h2 id="reportTitle"></h2>
+            <p id="reportSubtitle"></p>
+        </div>
+        
+        <div id="finalReport">
+            <!-- Report content will be added here dynamically -->
+        </div>
+        
+        <div class="actions">
+            <button id="exportPDF" class="btn-success">Export to PDF</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let machines = [];
+        let greenCoffees = [];
+        let roastedCoffees = [];
+        const AVERAGE_ROAST_TIME_PER_BATCH = 15; // minutes
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('numMachines').addEventListener('change', updateMachineInputs);
+            document.getElementById('numGreenCoffees').addEventListener('change', updateGreenCoffeeInputs);
+            document.getElementById('generateReport').addEventListener('click', generateReport);
+            document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+            document.getElementById('resetForm').addEventListener('click', resetForm);
+            
+            // Initialize inputs
+            updateMachineInputs();
+            updateGreenCoffeeInputs();
+            
+            // Set up event listeners for dynamic roasted coffee generation
+            setupRoastedCoffeeListeners();
+        });
+        
+        // Set up event listeners for roasted coffee generation
+        function setupRoastedCoffeeListeners() {
+            // Listen for changes in sale orders
+            document.getElementById('saleOrderInputs').addEventListener('input', function(e) {
+                // Check if the input is a roasted coffee name or quantity
+                if (e.target.id.includes('roastedCoffeeName') || e.target.id.includes('roastedCoffeeQty') || 
+                    e.target.id.includes('isCustom') || e.target.id.includes('clientName')) {
+                    updateRoastedCoffees();
+                }
+            });
+            
+            // Also listen for changes in the number of sale orders or coffee rows
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('add-order-btn') || 
+                    e.target.classList.contains('remove-order-btn') ||
+                    e.target.classList.contains('add-coffee-btn') || 
+                    e.target.classList.contains('remove-coffee-btn')) {
+                    setTimeout(updateRoastedCoffees, 0);
+                }
+            });
+        }
+        
+        // Add a new sale order
+        function addSaleOrder() {
+            const container = document.getElementById('saleOrderInputs');
+            const orderId = container.children.length + 1;
+            
+            const orderDiv = document.createElement('div');
+            orderDiv.className = 'sale-order-row';
+            orderDiv.dataset.orderId = orderId;
+            
+            orderDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="clientName${orderId}">Client Name:</label>
+                    <input type="text" id="clientName${orderId}" placeholder="Enter client name" value="">
+                </div>
+                <div id="coffeeInputs${orderId}">
+                    <div class="coffee-row" data-coffee-id="1">
+                        <div class="form-group">
+                            <label for="roastedCoffeeName${orderId}_1">Roasted Coffee Name:</label>
+                            <input type="text" id="roastedCoffeeName${orderId}_1" placeholder="Enter coffee name" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="roastedCoffeeQty${orderId}_1">Volume Ordered (kg):</label>
+                            <input type="number" id="roastedCoffeeQty${orderId}_1" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="isCustom${orderId}_1">Custom Coffee?</label>
+                            <select id="isCustom${orderId}_1">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        <button type="button" class="remove-coffee-btn" onclick="removeCoffeeRow(${orderId}, 1)">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-success add-order-btn" onclick="addCoffeeRow(${orderId})">Add Coffee</button>
+                <button type="button" class="remove-order-btn" onclick="removeSaleOrder(${orderId})">Remove Order</button>
+            `;
+            
+            container.appendChild(orderDiv);
+            updateRoastedCoffees();
+        }
+        
+        // Remove a sale order
+        function removeSaleOrder(orderId) {
+            const container = document.getElementById('saleOrderInputs');
+            const orderDiv = document.querySelector(`.sale-order-row[data-order-id="${orderId}"]`);
+            if (orderDiv && container.children.length > 1) {
+                container.removeChild(orderDiv);
+                updateRoastedCoffees();
+            }
+        }
+        
+        // Add a coffee row to a sale order
+        function addCoffeeRow(orderId) {
+            const container = document.getElementById(`coffeeInputs${orderId}`);
+            const coffeeId = container.children.length + 1;
+            
+            const coffeeDiv = document.createElement('div');
+            coffeeDiv.className = 'coffee-row';
+            coffeeDiv.dataset.coffeeId = coffeeId;
+            
+            coffeeDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="roastedCoffeeName${orderId}_${coffeeId}">Roasted Coffee Name:</label>
+                    <input type="text" id="roastedCoffeeName${orderId}_${coffeeId}" placeholder="Enter coffee name" value="">
+                </div>
+                <div class="form-group">
+                    <label for="roastedCoffeeQty${orderId}_${coffeeId}">Volume Ordered (kg):</label>
+                    <input type="number" id="roastedCoffeeQty${orderId}_${coffeeId}" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="isCustom${orderId}_${coffeeId}">Custom Coffee?</label>
+                    <select id="isCustom${orderId}_${coffeeId}">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                <button type="button" class="remove-coffee-btn" onclick="removeCoffeeRow(${orderId}, ${coffeeId})">Remove</button>
+            `;
+            
+            container.appendChild(coffeeDiv);
+            updateRoastedCoffees();
+        }
+        
+        // Remove a coffee row from a sale order
+        function removeCoffeeRow(orderId, coffeeId) {
+            const container = document.getElementById(`coffeeInputs${orderId}`);
+            const coffeeDiv = document.querySelector(`#coffeeInputs${orderId} .coffee-row[data-coffee-id="${coffeeId}"]`);
+            if (coffeeDiv && container.children.length > 1) {
+                container.removeChild(coffeeDiv);
+                updateRoastedCoffees();
+            }
+        }
+        
+        // Update roasted coffees from sale orders
+        function updateRoastedCoffees() {
+            const saleOrders = [];
+            const orderElements = document.querySelectorAll('.sale-order-row');
+            
+            // Collect all sale order data
+            orderElements.forEach(orderElement => {
+                const orderId = orderElement.dataset.orderId;
+                const clientName = document.getElementById(`clientName${orderId}`).value || `Client ${orderId}`;
+                
+                const coffees = [];
+                const coffeeElements = orderElement.querySelectorAll('.coffee-row');
+                
+                coffeeElements.forEach(coffeeElement => {
+                    const coffeeId = coffeeElement.dataset.coffeeId;
+                    const coffeeName = document.getElementById(`roastedCoffeeName${orderId}_${coffeeId}`).value || `Coffee ${coffeeId}`;
+                    const qty = parseFloat(document.getElementById(`roastedCoffeeQty${orderId}_${coffeeId}`).value) || 0;
+                    const isCustom = document.getElementById(`isCustom${orderId}_${coffeeId}`).value === 'yes';
+                    
+                    coffees.push({
+                        name: coffeeName,
+                        qty: qty,
+                        isCustom: isCustom,
+                        clientName: clientName
+                    });
+                });
+                
+                if (coffees.length > 0) {
+                    saleOrders.push({
+                        clientName: clientName,
+                        coffees: coffees
+                    });
+                }
+            });
+            
+            // Process sale orders to create roasted coffees
+            const roastedCoffeeMap = {};
+            
+            saleOrders.forEach(order => {
+                order.coffees.forEach(coffee => {
+                    const coffeeKey = coffee.isCustom ? `${coffee.name} - ${order.clientName}` : coffee.name;
+                    
+                    if (!roastedCoffeeMap[coffeeKey]) {
+                        roastedCoffeeMap[coffeeKey] = {
+                            name: coffeeKey,
+                            quantity: 0,
+                            components: []
+                        };
+                    }
+                    
+                    roastedCoffeeMap[coffeeKey].quantity += coffee.qty;
+                });
+            });
+            
+            // Convert map to array
+            const newRoastedCoffees = Object.values(roastedCoffeeMap);
+            
+            // Update the roasted coffee inputs section
+            const container = document.getElementById('roastedCoffeeInputs');
+            container.innerHTML = '';
+            
+            if (newRoastedCoffees.length > 0) {
+                document.getElementById('generateReportSection').style.display = 'block';
+            } else {
+                document.getElementById('generateReportSection').style.display = 'none';
+            }
+            
+            newRoastedCoffees.forEach((roasted, index) => {
+                const coffeeDiv = document.createElement('div');
+                coffeeDiv.className = 'input-card';
+                coffeeDiv.style.marginTop = '15px';
+                coffeeDiv.innerHTML = `
+                    <h4 class="compact">${roasted.name}</h4>
+                    <div class="form-group">
+                        <label for="roastedCoffeeQty${index + 1}">Quantity to Produce (kg):</label>
+                        <input type="number" id="roastedCoffeeQty${index + 1}" min="0" value="${roasted.quantity.toFixed(2)}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="numComponents${index + 1}">Number of Components:</label>
+                        <input type="number" id="numComponents${index + 1}" min="1" value="1">
+                    </div>
+                    <div id="componentsContainer${index + 1}">
+                        <!-- Components will be added here dynamically -->
+                    </div>
+                `;
+                container.appendChild(coffeeDiv);
+                
+                // Set up event listener for components
+                document.getElementById(`numComponents${index + 1}`).addEventListener('change', function() {
+                    updateComponentsInputs(index + 1);
+                });
+                
+                // Initialize components
+                updateComponentsInputs(index + 1);
+            });
+        }
+        
+        // Reset form to initial state
+        function resetForm() {
+            document.getElementById('personnel').value = '';
+            document.getElementById('date').value = '';
+            document.getElementById('company').value = '';
+            
+            document.getElementById('numMachines').value = 1;
+            document.getElementById('numGreenCoffees').value = 1;
+            
+            // Reset sale orders to one order with one coffee
+            const saleOrderContainer = document.getElementById('saleOrderInputs');
+            saleOrderContainer.innerHTML = '';
+            
+            const initialOrderDiv = document.createElement('div');
+            initialOrderDiv.className = 'sale-order-row';
+            initialOrderDiv.dataset.orderId = '1';
+            initialOrderDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="clientName1">Client Name:</label>
+                    <input type="text" id="clientName1" placeholder="Enter client name" value="">
+                </div>
+                <div id="coffeeInputs1">
+                    <div class="coffee-row" data-coffee-id="1">
+                        <div class="form-group">
+                            <label for="roastedCoffeeName1_1">Roasted Coffee Name:</label>
+                            <input type="text" id="roastedCoffeeName1_1" placeholder="Enter coffee name" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="roastedCoffeeQty1_1">Volume Ordered (kg):</label>
+                            <input type="number" id="roastedCoffeeQty1_1" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="isCustom1_1">Custom Coffee?</label>
+                            <select id="isCustom1_1">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        <button type="button" class="remove-coffee-btn" onclick="removeCoffeeRow(1, 1)">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-success add-order-btn" onclick="addCoffeeRow(1)">Add Coffee</button>
+            `;
+            saleOrderContainer.appendChild(initialOrderDiv);
+            
+            // Clear roasted coffee section
+            document.getElementById('roastedCoffeeInputs').innerHTML = '';
+            document.getElementById('generateReportSection').style.display = 'none';
+            
+            updateMachineInputs();
+            updateGreenCoffeeInputs();
+            
+            document.getElementById('reportSection').classList.add('hidden');
+        }
+        
+        // Update machine inputs based on number of machines
+        function updateMachineInputs() {
+            const numMachines = parseInt(document.getElementById('numMachines').value) || 1;
+            const container = document.getElementById('machineInputs');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= numMachines; i++) {
+                const machineDiv = document.createElement('div');
+                machineDiv.className = 'input-card';
+                machineDiv.innerHTML = `
+                    <h4 class="compact">Machine ${i}</h4>
+                    <div class="form-group">
+                        <label for="machineName${i}">Name:</label>
+                        <input type="text" id="machineName${i}" class="machine-name" placeholder="Machine ${i}" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="machineMinBatchSize${i}">Minimum Batch Size (kg):</label>
+                        <input type="number" id="machineMinBatchSize${i}" min="0.1" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="machineBatchSize${i}">Maximum Batch Size (kg):</label>
+                        <input type="number" id="machineBatchSize${i}" min="1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="machineHours${i}">Available Hours:</label>
+                        <input type="number" id="machineHours${i}" min="0" step="0.5" value="0">
+                    </div>
+                `;
+                container.appendChild(machineDiv);
+            }
+            
+            // Update any preferred roaster dropdowns that might exist
+            updateAllComponentDropdowns();
+        }
+        
+        // Update green coffee inputs based on number of green coffees
+        function updateGreenCoffeeInputs() {
+            const numGreenCoffees = parseInt(document.getElementById('numGreenCoffees').value) || 1;
+            const container = document.getElementById('greenCoffeeInputs');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= numGreenCoffees; i++) {
+                const coffeeDiv = document.createElement('div');
+                coffeeDiv.className = 'form-group';
+                coffeeDiv.innerHTML = `
+                    <label for="greenCoffeeName${i}">Name of Green Coffee ${i}:</label>
+                    <input type="text" id="greenCoffeeName${i}" class="green-coffee-name" placeholder="Green Coffee ${i}" value="">
+                `;
+                container.appendChild(coffeeDiv);
+            }
+            
+            // Update any component dropdowns that might exist
+            updateAllComponentDropdowns();
+        }
+        
+        // Update all component dropdowns when green coffees or machines change
+        function updateAllComponentDropdowns() {
+            const container = document.getElementById('roastedCoffeeInputs');
+            const numRoastedCoffees = container.children.length;
+            
+            for (let i = 1; i <= numRoastedCoffees; i++) {
+                updateComponentsInputs(i);
+            }
+        }
+        
+        // Update components inputs for a roasted coffee
+        function updateComponentsInputs(roastedCoffeeIndex) {
+            const numComponents = parseInt(document.getElementById(`numComponents${roastedCoffeeIndex}`)?.value) || 1;
+            const container = document.getElementById(`componentsContainer${roastedCoffeeIndex}`);
+            
+            // Create container if it doesn't exist
+            if (!container) {
+                const parentDiv = document.createElement('div');
+                parentDiv.id = `componentsContainer${roastedCoffeeIndex}`;
+                document.getElementById('roastedCoffeeInputs').appendChild(parentDiv);
+                parentDiv.innerHTML = '';
+            } else {
+                container.innerHTML = '';
+            }
+            
+            // Get current green coffee names
+            const greenCoffeeNames = [];
+            document.querySelectorAll('.green-coffee-name').forEach(input => {
+                if (input.value) greenCoffeeNames.push(input.value);
+                else greenCoffeeNames.push(input.placeholder);
+            });
+            
+            // Get current machine names for preferred roaster dropdown
+            const machineNames = ['none'];
+            document.querySelectorAll('.machine-name').forEach(input => {
+                if (input.value) machineNames.push(input.value);
+                else machineNames.push(input.placeholder);
+            });
+            
+            for (let j = 1; j <= numComponents; j++) {
+                const componentDiv = document.createElement('div');
+                componentDiv.className = 'component-group';
+                
+                // Create dropdown for green coffee selection
+                let dropdownOptions = '<option value="">Select Green Coffee</option>';
+                greenCoffeeNames.forEach((name, idx) => {
+                    dropdownOptions += `<option value="${name}">${name}</option>`;
+                });
+                
+                // Create dropdown for preferred roaster
+                let roasterOptions = '';
+                machineNames.forEach(name => {
+                    roasterOptions += `<option value="${name}">${name}</option>`;
+                });
+                
+                componentDiv.innerHTML = `
+                    <h5 class="compact">Component ${j}</h5>
+                    <div class="form-group">
+                        <label for="componentName${roastedCoffeeIndex}_${j}">Green Coffee:</label>
+                        <select id="componentName${roastedCoffeeIndex}_${j}" class="green-coffee-select">
+                            ${dropdownOptions}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="componentPercent${roastedCoffeeIndex}_${j}">Composition (%):</label>
+                        <input type="number" id="componentPercent${roastedCoffeeIndex}_${j}" min="0" max="100" step="0.01" value="${j === 1 ? 100 : 0}">
+                        <div id="percentError${roastedCoffeeIndex}_${j}" class="error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="componentLoss${roastedCoffeeIndex}_${j}">Roasting Loss (%):</label>
+                        <input type="number" id="componentLoss${roastedCoffeeIndex}_${j}" min="0" max="50" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="componentRoaster${roastedCoffeeIndex}_${j}">Preferred Roaster:</label>
+                        <select id="componentRoaster${roastedCoffeeIndex}_${j}" class="preferred-roaster-select">
+                            ${roasterOptions}
+                        </select>
+                    </div>
+                `;
+                document.getElementById(`componentsContainer${roastedCoffeeIndex}`).appendChild(componentDiv);
+                
+                // Add event listener to validate percentages
+                document.getElementById(`componentPercent${roastedCoffeeIndex}_${j}`).addEventListener('change', function() {
+                    validatePercentages(roastedCoffeeIndex);
+                });
+            }
+            
+            // Validate percentages after updating
+            validatePercentages(roastedCoffeeIndex);
+        }
+        
+        // Validate that component percentages add up to 100%
+        function validatePercentages(roastedCoffeeIndex) {
+            const numComponents = parseInt(document.getElementById(`numComponents${roastedCoffeeIndex}`)?.value) || 1;
+            let total = 0;
+            let isValid = true;
+            
+            for (let j = 1; j <= numComponents; j++) {
+                const percentInput = document.getElementById(`componentPercent${roastedCoffeeIndex}_${j}`);
+                const errorElement = document.getElementById(`percentError${roastedCoffeeIndex}_${j}`);
+                const percentValue = parseFloat(percentInput?.value) || 0;
+                
+                total += percentValue;
+                errorElement.textContent = '';
+            }
+            
+            // Check if total is 100%
+            if (Math.abs(total - 100) > 0.01) { // Allow for floating point rounding
+                isValid = false;
+                for (let j = 1; j <= numComponents; j++) {
+                    const errorElement = document.getElementById(`percentError${roastedCoffeeIndex}_${j}`);
+                    if (errorElement) {
+                        errorElement.textContent = 'Components must add up to 100%';
+                    }
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Validate all roasted coffee percentages before generating report
+        function validateAllPercentages() {
+            const container = document.getElementById('roastedCoffeeInputs');
+            const numRoastedCoffees = container.children.length;
+            let allValid = true;
+            
+            for (let i = 1; i <= numRoastedCoffees; i++) {
+                if (!validatePercentages(i)) {
+                    allValid = false;
+                }
+            }
+            
+            return allValid;
+        }
+        
+        // Collect all input data
+        function collectInputData() {
+            // Reset global arrays to ensure fresh data
+            machines = [];
+            greenCoffees = [];
+            roastedCoffees = [];
+            
+            // Basic info
+            const personnel = document.getElementById('personnel').value;
+            const date = document.getElementById('date').value;
+            const company = document.getElementById('company').value;
+            
+            // Machines
+            const numMachines = parseInt(document.getElementById('numMachines').value) || 1;
+            for (let i = 1; i <= numMachines; i++) {
+                const name = document.getElementById(`machineName${i}`).value || `Machine ${i}`;
+                const minBatchSize = parseFloat(document.getElementById(`machineMinBatchSize${i}`).value) || 0;
+                const batchSize = parseFloat(document.getElementById(`machineBatchSize${i}`).value) || 0;
+                
+                // Ensure max batch size is at least min batch size
+                const effectiveBatchSize = Math.max(batchSize, minBatchSize);
+                
+                machines.push({
+                    name: name,
+                    minBatchSize: minBatchSize,
+                    batchSize: effectiveBatchSize,
+                    hoursAvailable: parseFloat(document.getElementById(`machineHours${i}`).value) || 0,
+                    capacity: function() {
+                        return this.batchSize * this.hoursAvailable;
+                    },
+                    efficiency: function() {
+                        return this.batchSize; // Higher efficiency means better machine
+                    },
+                    maxBatches: function() {
+                        return this.hoursAvailable * (60 / AVERAGE_ROAST_TIME_PER_BATCH);
+                    }
+                });
+            }
+            
+            // Green coffees
+            const numGreenCoffees = parseInt(document.getElementById('numGreenCoffees').value) || 1;
+            for (let i = 1; i <= numGreenCoffees; i++) {
+                const name = document.getElementById(`greenCoffeeName${i}`).value || `Green Coffee ${i}`;
+                greenCoffees.push({
+                    name: name
+                });
+            }
+            
+            // Roasted coffees (from roasted coffee inputs section)
+            const container = document.getElementById('roastedCoffeeInputs');
+            const numRoastedCoffees = container.children.length;
+            
+            for (let i = 1; i <= numRoastedCoffees; i++) {
+                const numComponents = parseInt(document.getElementById(`numComponents${i}`).value) || 1;
+                const components = [];
+                
+                for (let j = 1; j <= numComponents; j++) {
+                    const componentName = document.getElementById(`componentName${i}_${j}`).value;
+                    if (componentName) {
+                        const percent = parseFloat(document.getElementById(`componentPercent${i}_${j}`).value) || 0;
+                        const loss = parseFloat(document.getElementById(`componentLoss${i}_${j}`).value) || 0;
+                        const preferredRoaster = document.getElementById(`componentRoaster${i}_${j}`).value;
+                        
+                        components.push({
+                            name: componentName,
+                            percent: percent / 100, // Convert percentage to decimal
+                            loss: loss / 100, // Convert percentage to decimal
+                            preferredRoaster: preferredRoaster === 'none' ? null : preferredRoaster,
+                            requiredGreen: 0,
+                            producedRoasted: 0
+                        });
+                    }
+                }
+                
+                if (components.length > 0) {
+                    const qty = parseFloat(document.getElementById(`roastedCoffeeQty${i}`).value) || 0;
+                    const name = container.querySelector(`#roastedCoffeeInputs > div:nth-child(${i}) h4`).textContent;
+                    roastedCoffees.push({
+                        name: name,
+                        quantity: qty,
+                        components: components
+                    });
+                }
+            }
+            
+            // Collect sale order data
+            const saleOrders = [];
+            const orderElements = document.querySelectorAll('.sale-order-row');
+            
+            orderElements.forEach(orderElement => {
+                const orderId = orderElement.dataset.orderId;
+                const clientName = document.getElementById(`clientName${orderId}`).value || `Client ${orderId}`;
+                
+                const coffees = [];
+                const coffeeElements = orderElement.querySelectorAll('.coffee-row');
+                
+                coffeeElements.forEach(coffeeElement => {
+                    const coffeeId = coffeeElement.dataset.coffeeId;
+                    const coffeeName = document.getElementById(`roastedCoffeeName${orderId}_${coffeeId}`).value || `Coffee ${coffeeId}`;
+                    const qty = parseFloat(document.getElementById(`roastedCoffeeQty${orderId}_${coffeeId}`).value) || 0;
+                    const isCustom = document.getElementById(`isCustom${orderId}_${coffeeId}`).value === 'yes';
+                    
+                    coffees.push({
+                        name: coffeeName,
+                        qty: qty,
+                        isCustom: isCustom
+                    });
+                });
+                
+                if (coffees.length > 0) {
+                    saleOrders.push({
+                        clientName: clientName,
+                        coffees: coffees
+                    });
+                }
+            });
+            
+            return {
+                personnel,
+                date,
+                company,
+                machines,
+                greenCoffees,
+                roastedCoffees,
+                saleOrders
+            };
+        }
+        
+        // Calculate green coffee requirements
+        function calculateGreenCoffeeRequirements() {
+            const requirements = {};
+            const roastedCoffeeDetails = [];
+            
+            // Initialize requirements for each green coffee
+            greenCoffees.forEach(coffee => {
+                requirements[coffee.name] = {
+                    totalGreen: 0,
+                    totalRoasted: 0,
+                    preferredRoasters: {} // Track preferred roasters for this coffee
+                };
+            });
+            
+            // Calculate required green coffee for each roasted coffee
+            roastedCoffees.forEach(roasted => {
+                const componentsDetail = [];
+                
+                roasted.components.forEach(component => {
+                    // Calculate green coffee needed and roasted produced
+                    const greenCoffeeNeeded = roasted.quantity * component.percent / (1 - component.loss);
+                    const roastedProduced = greenCoffeeNeeded * (1 - component.loss);
+                    
+                    // Update component calculations
+                    component.requiredGreen = greenCoffeeNeeded;
+                    component.producedRoasted = roastedProduced;
+                    
+                    // Update requirements
+                    requirements[component.name].totalGreen += greenCoffeeNeeded;
+                    requirements[component.name].totalRoasted += roastedProduced;
+                    
+                    // Track preferred roaster if specified
+                    if (component.preferredRoaster) {
+                        if (!requirements[component.name].preferredRoasters[component.preferredRoaster]) {
+                            requirements[component.name].preferredRoasters[component.preferredRoaster] = 0;
+                        }
+                        requirements[component.name].preferredRoasters[component.preferredRoaster] += greenCoffeeNeeded;
+                    }
+                    
+                    // Add to components detail
+                    componentsDetail.push({
+                        greenCoffee: component.name,
+                        greenCoffeeNeeded: greenCoffeeNeeded,
+                        roastedProduced: roastedProduced,
+                        roastingLoss: component.loss * 100
+                    });
+                });
+                
+                // Add to roasted coffee details
+                roastedCoffeeDetails.push({
+                    roastedCoffee: roasted.name,
+                    components: componentsDetail
+                });
+            });
+            
+            return {
+                requirements,
+                roastedCoffeeDetails
+            };
+        }
+        
+        // Calculate optimal batch configuration to minimize number of batches while respecting min/max batch sizes
+        function calculateOptimalBatches(totalQty, minBatchSize, maxBatchSize) {
+            if (totalQty <= 0) return { count: 0, batches: [], batchDetails: [] };
+            
+            // Ensure batch sizes stay within min/max limits
+            if (minBatchSize > maxBatchSize || minBatchSize <= 0 || maxBatchSize <= 0) {
+                return null; // Invalid configuration
+            }
+            
+            // First try to use as few max-sized batches as possible
+            const maxBatches = Math.floor(totalQty / maxBatchSize);
+            let remaining = totalQty - (maxBatches * maxBatchSize);
+            
+            if (remaining === 0) {
+                const batches = Array(maxBatches).fill(maxBatchSize);
+                return {
+                    count: maxBatches,
+                    batches: batches,
+                    batchDetails: groupBatchSizes(batches)
+                };
+            }
+            
+            // If remaining can be added to last batch without exceeding max
+            if (maxBatches > 0 && (maxBatchSize + remaining - minBatchSize <= maxBatchSize)) {
+                const batches = [...Array(maxBatches - 1).fill(maxBatchSize), maxBatchSize + remaining];
+                // Ensure the last batch doesn't exceed max batch size
+                if (batches[batches.length - 1] > maxBatchSize) {
+                    return null;
+                }
+                return {
+                    count: maxBatches,
+                    batches: batches,
+                    batchDetails: groupBatchSizes(batches)
+                };
+            }
+            
+            // If remaining needs its own batch
+            if (remaining >= minBatchSize) {
+                const batches = [...Array(maxBatches).fill(maxBatchSize), remaining];
+                return {
+                    count: maxBatches + 1,
+                    batches: batches,
+                    batchDetails: groupBatchSizes(batches)
+                };
+            }
+            
+            // If remaining is too small, distribute it across existing batches
+            if (maxBatches > 0) {
+                const perBatchAddition = remaining / maxBatches;
+                const adjustedBatches = Array(maxBatches).fill(maxBatchSize + perBatchAddition);
+                
+                // Ensure adjusted batches don't go below min batch size or exceed max batch size
+                if (adjustedBatches.some(size => size < minBatchSize) || 
+                    adjustedBatches.some(size => size > maxBatchSize)) {
+                    return null; // Can't distribute without violating min/max batch size
+                }
+                
+                return {
+                    count: maxBatches,
+                    batches: adjustedBatches,
+                    batchDetails: groupBatchSizes(adjustedBatches)
+                };
+            }
+            
+            // If we can't meet min batch size, return null (invalid)
+            return null;
+        }
+        
+        // Group batch sizes into counts (e.g. [10, 10, 5] becomes "2 × 10kg, 1 × 5kg")
+        function groupBatchSizes(batches) {
+            const groups = {};
+            batches.forEach(size => {
+                const key = size.toFixed(2) + 'kg';
+                groups[key] = (groups[key] || 0) + 1;
+            });
+            
+            return Object.entries(groups).map(([size, count]) => `${count} × ${size}`).join(', ');
+        }
+        
+        // Generate all possible machine subsets (from 1 machine to all machines)
+        function generateAllMachineSubsets(machines) {
+            const subsets = [];
+            const n = machines.length;
+            
+            // Generate all possible subsets (bitmask approach)
+            for (let mask = 1; mask < (1 << n); mask++) {
+                const subset = [];
+                for (let i = 0; i < n; i++) {
+                    if (mask & (1 << i)) {
+                        subset.push(machines[i]);
+                    }
+                }
+                subsets.push(subset);
+            }
+            
+            return subsets;
+        }
+        
+        // Generate all permutations of a machine subset
+        function generatePermutations(machines) {
+            if (machines.length <= 1) {
+                return [machines];
+            }
+            
+            const permutations = [];
+            for (let i = 0; i < machines.length; i++) {
+                const current = machines[i];
+                const remaining = machines.slice(0, i).concat(machines.slice(i + 1));
+                const remainingPermutations = generatePermutations(remaining);
+                
+                for (let j = 0; j < remainingPermutations.length; j++) {
+                    permutations.push([current].concat(remainingPermutations[j]));
+                }
+            }
+            
+            return permutations;
+        }
+        
+        // Calculate all possible roaster plans and return the most optimal one
+        function calculateOptimalRoasterPlan(greenCoffeeRequirements) {
+            const allPlans = [];
+            
+            // Generate all possible machine subsets
+            const machineSubsets = generateAllMachineSubsets(machines);
+            
+            // For each subset, generate all permutations and calculate plans
+            for (const subset of machineSubsets) {
+                const permutations = generatePermutations(subset);
+                
+                for (const machineOrder of permutations) {
+                    const plan = calculatePlanForMachineOrder(machineOrder, greenCoffeeRequirements);
+                    if (plan) {
+                        allPlans.push(plan);
+                    }
+                }
+            }
+            
+            // If no plans were generated, return null
+            if (allPlans.length === 0) {
+                return null;
+            }
+            
+            // Find the plan with the best combination of:
+            // 1. Minimum production time (all machines run simultaneously)
+            // 2. Minimum total batches if production times are equal
+            let bestPlan = allPlans[0];
+            let minProductionTime = calculateProductionTime(bestPlan.plan);
+            let minTotalBatches = calculateTotalBatches(bestPlan.plan);
+            
+            for (let i = 1; i < allPlans.length; i++) {
+                const currentProductionTime = calculateProductionTime(allPlans[i].plan);
+                const currentBatches = calculateTotalBatches(allPlans[i].plan);
+                
+                if (currentProductionTime < minProductionTime) {
+                    bestPlan = allPlans[i];
+                    minProductionTime = currentProductionTime;
+                    minTotalBatches = currentBatches;
+                } else if (currentProductionTime === minProductionTime && currentBatches < minTotalBatches) {
+                    bestPlan = allPlans[i];
+                    minTotalBatches = currentBatches;
+                }
+            }
+            
+            // Check if any machine exceeds its batch capacity (hours available * 15)
+            for (const machineName in bestPlan.plan) {
+                const machine = machines.find(m => m.name === machineName);
+                const batchesAssigned = Object.values(bestPlan.plan[machineName].batches).reduce((a, b) => a + b, 0);
+                
+                if (batchesAssigned > machine.maxBatches()) {
+                    return null; // Plan exceeds machine capacity
+                }
+            }
+            
+            return bestPlan;
+        }
+        
+        // Calculate production time (longest machine time since machines run simultaneously)
+        function calculateProductionTime(plan) {
+            let maxTime = 0;
+            for (const machineName in plan) {
+                if (plan[machineName].roastingTime > maxTime) {
+                    maxTime = plan[machineName].roastingTime;
+                }
+            }
+            return maxTime;
+        }
+        
+        // Calculate total number of batches for a plan
+        function calculateTotalBatches(plan) {
+            let totalBatches = 0;
+            for (const machineName in plan) {
+                for (const coffee in plan[machineName].batches) {
+                    totalBatches += plan[machineName].batches[coffee];
+                }
+            }
+            return totalBatches;
+        }
+        
+        // Calculate a roaster plan for a specific machine order
+        function calculatePlanForMachineOrder(machineOrder, greenCoffeeRequirements) {
+            const plan = {};
+            const remainingByCoffee = JSON.parse(JSON.stringify(greenCoffeeRequirements.requirements));
+            
+            // Initialize plan for each machine
+            machineOrder.forEach(machine => {
+                plan[machine.name] = {
+                    details: {},
+                    total: 0,
+                    batches: {},
+                    batchDetails: {}, // Store batch size groups
+                    roastingTime: 0,
+                    roastedOutput: {}
+                };
+            });
+            
+            // First pass: Handle preferred roasters
+            for (const coffeeName in greenCoffeeRequirements.requirements) {
+                const coffeeData = greenCoffeeRequirements.requirements[coffeeName];
+                
+                if (Object.keys(coffeeData.preferredRoasters).length > 0) {
+                    for (const [roasterName, qty] of Object.entries(coffeeData.preferredRoasters)) {
+                        const machine = machineOrder.find(m => m.name === roasterName);
+                        if (!machine) continue;
+                        
+                        if (qty < machine.minBatchSize) continue;
+                        
+                        // Calculate optimal batches to minimize number
+                        const batchesInfo = calculateOptimalBatches(qty, machine.minBatchSize, machine.batchSize);
+                        if (!batchesInfo) continue;
+                        
+                        const batchesNeeded = batchesInfo.count;
+                        
+                        if (batchesNeeded > machine.maxBatches()) continue;
+                        
+                        plan[roasterName].details[coffeeName] = qty;
+                        plan[roasterName].total += qty;
+                        plan[roasterName].batches[coffeeName] = batchesInfo.count;
+                        plan[roasterName].batchDetails[coffeeName] = batchesInfo.batchDetails;
+                        plan[roasterName].roastingTime += batchesNeeded * AVERAGE_ROAST_TIME_PER_BATCH;
+                        
+                        const lossPercentage = getLossPercentageForCoffee(coffeeName);
+                        const roastedOutput = qty * (1 - lossPercentage);
+                        plan[roasterName].roastedOutput[coffeeName] = roastedOutput;
+                        
+                        remainingByCoffee[coffeeName].totalGreen -= qty;
+                    }
+                }
+            }
+            
+            // Second pass: Distribute remaining coffee to most suitable machines
+            // Sort machines by batch size (efficiency) in descending order
+            const sortedMachines = [...machineOrder].sort((a, b) => b.batchSize - a.batchSize);
+            
+            for (const machine of sortedMachines) {
+                for (const coffeeName in remainingByCoffee) {
+                    let remainingQty = remainingByCoffee[coffeeName].totalGreen;
+                    if (remainingQty <= 0) continue;
+                    
+                    if (Object.keys(remainingByCoffee[coffeeName].preferredRoasters).length > 0) {
+                        continue; // Skip if this coffee has preferred roasters that weren't used
+                    }
+                    
+                    if (remainingQty < machine.minBatchSize) continue;
+                    
+                    const batchesInfo = calculateOptimalBatches(remainingQty, machine.minBatchSize, machine.batchSize);
+                    if (!batchesInfo) continue;
+                    
+                    const batchesNeeded = batchesInfo.count;
+                    const batchesAvailable = machine.maxBatches() - (plan[machine.name]?.batches ? 
+                        Object.values(plan[machine.name].batches).reduce((a, b) => a + b, 0) : 0);
+                    
+                    if (batchesNeeded > batchesAvailable) continue;
+                    
+                    plan[machine.name].details[coffeeName] = remainingQty;
+                    plan[machine.name].total += remainingQty;
+                    plan[machine.name].batches[coffeeName] = batchesInfo.count;
+                    plan[machine.name].batchDetails[coffeeName] = batchesInfo.batchDetails;
+                    plan[machine.name].roastingTime += batchesNeeded * AVERAGE_ROAST_TIME_PER_BATCH;
+                    
+                    const lossPercentage = getLossPercentageForCoffee(coffeeName);
+                    const roastedOutput = remainingQty * (1 - lossPercentage);
+                    plan[machine.name].roastedOutput[coffeeName] = roastedOutput;
+                    
+                    remainingByCoffee[coffeeName].totalGreen -= remainingQty;
+                }
+            }
+            
+            // Third pass: Handle any remaining quantities (very small batches)
+            // Sort machines by minimum batch size in ascending order
+            const sortedByMinBatch = [...machineOrder].sort((a, b) => a.minBatchSize - b.minBatchSize);
+            
+            for (const coffeeName in remainingByCoffee) {
+                let remainingQty = remainingByCoffee[coffeeName].totalGreen;
+                if (remainingQty <= 0) continue;
+                
+                if (Object.keys(remainingByCoffee[coffeeName].preferredRoasters).length === 0) {
+                    for (const machine of sortedByMinBatch) {
+                        if (remainingQty >= machine.minBatchSize) {
+                            // Calculate optimal batches to minimize number
+                            const batchesInfo = calculateOptimalBatches(remainingQty, machine.minBatchSize, machine.batchSize);
+                            if (!batchesInfo) continue;
+                            
+                            const batchesNeeded = batchesInfo.count;
+                            const batchesAvailable = machine.maxBatches() - (plan[machine.name]?.batches ? 
+                                Object.values(plan[machine.name].batches).reduce((a, b) => a + b, 0) : 0);
+                            
+                            if (batchesNeeded > batchesAvailable) continue;
+                            
+                            plan[machine.name].details[coffeeName] = remainingQty;
+                            plan[machine.name].total += remainingQty;
+                            plan[machine.name].batches[coffeeName] = batchesInfo.count;
+                            plan[machine.name].batchDetails[coffeeName] = batchesInfo.batchDetails;
+                            plan[machine.name].roastingTime += batchesNeeded * AVERAGE_ROAST_TIME_PER_BATCH;
+                            
+                            const lossPercentage = getLossPercentageForCoffee(coffeeName);
+                            const roastedOutput = remainingQty * (1 - lossPercentage);
+                            plan[machine.name].roastedOutput[coffeeName] = roastedOutput;
+                            
+                            remainingQty = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                if (remainingQty > 0) {
+                    return null;
+                }
+            }
+            
+            // Remove unused machines from the plan
+            for (const machineName in plan) {
+                if (plan[machineName].total === 0) {
+                    delete plan[machineName];
+                }
+            }
+            
+            return {
+                plan,
+                roastedCoffeeDetails: greenCoffeeRequirements.roastedCoffeeDetails
+            };
+        }
+        
+        // Helper function to get loss percentage for a green coffee
+        function getLossPercentageForCoffee(coffeeName) {
+            for (const roasted of roastedCoffees) {
+                for (const component of roasted.components) {
+                    if (component.name === coffeeName) {
+                        return component.loss;
+                    }
+                }
+            }
+            return 0; // Default to no loss if not found
+        }
+        
+        // Format minutes to hours and minutes
+        function formatMinutesToHours(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+        
+        // Generate the report
+        function generateReport() {
+            // First validate all percentages
+            if (!validateAllPercentages()) {
+                alert('Please ensure all roasted coffee components add up to 100%');
+                return;
+            }
+            
+            const data = collectInputData();
+            const greenCoffeeRequirements = calculateGreenCoffeeRequirements();
+            const roasterPlanData = calculateOptimalRoasterPlan(greenCoffeeRequirements);
+            
+            // Set report title
+            const formattedDate = data.date ? new Date(data.date).toLocaleDateString() : 'No date specified';
+            document.getElementById('reportTitle').textContent = `${data.company || 'Unknown Company'} - ${formattedDate} - Roast Plan`;
+            document.getElementById('reportSubtitle').textContent = `Prepared by: ${data.personnel || 'Unknown'}`;
+            
+            // Build report content
+            const reportDiv = document.getElementById('finalReport');
+            reportDiv.innerHTML = '';
+            
+            if (!roasterPlanData) {
+                return;
+            }
+            
+            const roasterPlan = roasterPlanData.plan;
+            const roastedCoffeeDetails = roasterPlanData.roastedCoffeeDetails;
+            
+            // Calculate total production time (longest machine time)
+            let totalProductionTime = 0;
+            for (const machineName in roasterPlan) {
+                if (roasterPlan[machineName].roastingTime > totalProductionTime) {
+                    totalProductionTime = roasterPlan[machineName].roastingTime;
+                }
+            }
+            
+            // 1. Sale Orders
+            const saleOrderSection = document.createElement('div');
+            saleOrderSection.className = 'sale-order-summary';
+            
+            let saleOrderTable = `
+                <h3>Sale Orders</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Roasted Coffee</th>
+                            <th>Volume Ordered (kg)</th>
+                            <th>Custom Coffee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            data.saleOrders.forEach(order => {
+                order.coffees.forEach((coffee, idx) => {
+                    saleOrderTable += `
+                        <tr>
+                            ${idx === 0 ? `<td rowspan="${order.coffees.length}">${order.clientName}</td>` : ''}
+                            <td>${coffee.name}</td>
+                            <td>${coffee.qty.toFixed(2)}</td>
+                            <td>${coffee.isCustom ? 'Yes' : 'No'}</td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            saleOrderTable += `
+                    </tbody>
+                </table>
+            `;
+            
+            saleOrderSection.innerHTML = saleOrderTable;
+            reportDiv.appendChild(saleOrderSection);
+            
+            // 2. Green Coffee to be Roasted
+            const greenCoffeeSection = document.createElement('div');
+            greenCoffeeSection.className = 'green-coffee-summary';
+            greenCoffeeSection.style.marginTop = '20px';
+            
+            let greenCoffeeTable = `
+                <h3>Green Coffee to Be Roasted</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Green Coffee</th>
+                            <th>Total Green to Roast (kg)</th>
+                            <th>Total Roasted Produced (kg)</th>
+                            <th>Roasting Loss (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const [name, data] of Object.entries(greenCoffeeRequirements.requirements)) {
+                const lossPercentage = getLossPercentageForCoffee(name) * 100;
+                greenCoffeeTable += `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${data.totalGreen.toFixed(2)}</td>
+                        <td>${data.totalRoasted.toFixed(2)}</td>
+                        <td>${lossPercentage.toFixed(1)}</td>
+                    </tr>
+                `;
+            }
+            
+            greenCoffeeTable += `
+                    </tbody>
+                </table>
+            `;
+            
+            greenCoffeeSection.innerHTML = greenCoffeeTable;
+            reportDiv.appendChild(greenCoffeeSection);
+            
+            // 3. Roasted Coffee Details
+            const roastedDetailsSection = document.createElement('div');
+            roastedDetailsSection.className = 'roasted-details-summary';
+            roastedDetailsSection.style.marginTop = '20px';
+            
+            let roastedDetailsTable = `
+                <h3>Roasted Coffee Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roasted Coffee</th>
+                            <th>Green Coffee Roasted</th>
+                            <th>Roasted Coffee Output</th>
+                            <th>Roasting Loss (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            roastedCoffeeDetails.forEach(roasted => {
+                roasted.components.forEach((component, idx) => {
+                    roastedDetailsTable += `
+                        <tr>
+                            ${idx === 0 ? `<td rowspan="${roasted.components.length}">${roasted.roastedCoffee}</td>` : ''}
+                            <td>${component.greenCoffee}: ${component.greenCoffeeNeeded.toFixed(2)} kg</td>
+                            <td>${component.roastedProduced.toFixed(2)} kg</td>
+                            <td>${component.roastingLoss.toFixed(1)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            roastedDetailsTable += `
+                    </tbody>
+                </table>
+            `;
+            
+            roastedDetailsSection.innerHTML = roastedDetailsTable;
+            reportDiv.appendChild(roastedDetailsSection);
+            
+            // 4. Machine Allocation
+            if (Object.keys(roasterPlan).length > 0) {
+                const roasterSection = document.createElement('div');
+                roasterSection.className = 'roaster-plan';
+                roasterSection.style.marginTop = '20px';
+                
+                // Calculate total batches
+                let totalBatches = 0;
+                for (const machineName in roasterPlan) {
+                    for (const coffee in roasterPlan[machineName].batches) {
+                        totalBatches += roasterPlan[machineName].batches[coffee];
+                    }
+                }
+                
+                let roasterContent = `
+                    <h3>Machine Allocation</h3>
+                    <p><strong>Total Production Time:</strong> ${formatMinutesToHours(totalProductionTime)}</p>
+                    <p><strong>Total Batches Across All Machines:</strong> ${totalBatches}</p>
+                `;
+                
+                for (const [machineName, planData] of Object.entries(roasterPlan)) {
+                    const machine = machines.find(m => m.name === machineName);
+                    
+                    roasterContent += `
+                        <div class="machine-plan">
+                            <h4>${machineName}</h4>
+                            <p><strong>Capacity:</strong> Min ${machine.minBatchSize} kg | Max ${machine.batchSize} kg | Available Hours: ${machine.hoursAvailable}</p>
+                            <p><strong>Total:</strong> ${planData.total.toFixed(2)} kg | Total Batches: ${Object.values(planData.batches).reduce((a, b) => a + b, 0)} | Total Roasting Time: ${formatMinutesToHours(planData.roastingTime)}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Green Coffee</th>
+                                        <th>Green Quantity (kg)</th>
+                                        <th>Roasted Output (kg)</th>
+                                        <th>Batches</th>
+                                        <th>Batch Sizes</th>
+                                        <th>Roasting Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    // Only show green coffees with quantity > 0
+                    for (const [coffee, qty] of Object.entries(planData.details)) {
+                        if (qty > 0) {
+                            const batches = planData.batches[coffee];
+                            const batchSizes = planData.batchDetails[coffee] || 'N/A';
+                            const roastingTime = batches * AVERAGE_ROAST_TIME_PER_BATCH;
+                            const roastedOutput = planData.roastedOutput[coffee] || 0;
+                            
+                            roasterContent += `
+                                <tr>
+                                    <td>${coffee}</td>
+                                    <td>${qty.toFixed(2)}</td>
+                                    <td>${roastedOutput.toFixed(2)}</td>
+                                    <td>${batches}</td>
+                                    <td>${batchSizes}</td>
+                                    <td>${formatMinutesToHours(roastingTime)}</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                    
+                    roasterContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                roasterSection.innerHTML = roasterContent;
+                reportDiv.appendChild(roasterSection);
+            }
+            
+            // Show the report section
+            document.getElementById('reportSection').classList.remove('hidden');
+        }
+        
+        // Export to PDF
+        function exportToPDF() {
+            // First validate all percentages
+            if (!validateAllPercentages()) {
+                alert('Please ensure all roasted coffee components add up to 100%');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Get the data
+            const data = collectInputData();
+            const greenCoffeeRequirements = calculateGreenCoffeeRequirements();
+            const roasterPlanData = calculateOptimalRoasterPlan(greenCoffeeRequirements);
+            
+            if (!roasterPlanData) {
+                return;
+            }
+            
+            const roasterPlan = roasterPlanData.plan;
+            const roastedCoffeeDetails = roasterPlanData.roastedCoffeeDetails;
+            
+            // Set document properties
+            const formattedDate = data.date ? new Date(data.date).toLocaleDateString() : 'No date specified';
+            const filename = `${data.company || 'unknown'}_${formattedDate.replace(/\//g, '-')}_roastplan.pdf`;
+            
+            // Set styles
+            const primaryColor = [0, 0, 0];
+            const headerColor = [240, 240, 240];
+            const cellPadding = 5;
+            const fontSize = 10;
+            const headerFontSize = 11;
+            
+            // Add title
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${data.company || 'Unknown Company'} - Roast Plan`, 105, 15, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Date: ${formattedDate} | Prepared by: ${data.personnel || 'Unknown'}`, 105, 20, { align: 'center' });
+            
+            let currentY = 30;
+            
+            // Calculate total production time (longest machine time)
+            let totalProductionTime = 0;
+            for (const machineName in roasterPlan) {
+                if (roasterPlan[machineName].roastingTime > totalProductionTime) {
+                    totalProductionTime = roasterPlan[machineName].roastingTime;
+                }
+            }
+            
+            // 1. Sale Orders
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Sale Orders', 14, currentY);
+            currentY += 8;
+            
+            const saleOrderData = [];
+            data.saleOrders.forEach(order => {
+                order.coffees.forEach(coffee => {
+                    saleOrderData.push([
+                        order.clientName,
+                        coffee.name,
+                        `${coffee.qty.toFixed(2)} kg`,
+                        coffee.isCustom ? 'Yes' : 'No'
+                    ]);
+                });
+            });
+            
+            doc.autoTable({
+                startY: currentY,
+                head: [
+                    [
+                        { content: 'Client Name', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Roasted Coffee', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Volume Ordered', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Custom Coffee', styles: { fontStyle: 'bold', halign: 'center' } }
+                    ]
+                ],
+                body: saleOrderData,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: headerColor,
+                    textColor: primaryColor,
+                    fontStyle: 'bold',
+                    fontSize: headerFontSize
+                },
+                bodyStyles: {
+                    textColor: primaryColor,
+                    fontSize: fontSize
+                },
+                styles: {
+                    cellPadding: cellPadding,
+                    overflow: 'linebreak',
+                    halign: 'left',
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 'auto' },
+                    1: { cellWidth: 'auto' },
+                    2: { cellWidth: 'auto', halign: 'right' },
+                    3: { cellWidth: 'auto', halign: 'center' }
+                },
+                margin: { left: 14, right: 14 },
+                tableWidth: 'auto'
+            });
+            
+            currentY = doc.lastAutoTable.finalY + 10;
+            
+            // 2. Green Coffee to be Roasted
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Green Coffee to Be Roasted', 14, currentY);
+            currentY += 8;
+            
+            const greenCoffeeData = [];
+            for (const [name, reqData] of Object.entries(greenCoffeeRequirements.requirements)) {
+                const lossPercentage = getLossPercentageForCoffee(name) * 100;
+                greenCoffeeData.push([
+                    name,
+                    `${reqData.totalGreen.toFixed(2)} kg`,
+                    `${reqData.totalRoasted.toFixed(2)} kg`,
+                    `${lossPercentage.toFixed(1)}%`
+                ]);
+            }
+            
+            doc.autoTable({
+                startY: currentY,
+                head: [
+                    [
+                        { content: 'Green Coffee', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Total Green to Roast', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Total Roasted Produced', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Roasting Loss', styles: { fontStyle: 'bold', halign: 'center' } }
+                    ]
+                ],
+                body: greenCoffeeData,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: headerColor,
+                    textColor: primaryColor,
+                    fontStyle: 'bold',
+                    fontSize: headerFontSize
+                },
+                bodyStyles: {
+                    textColor: primaryColor,
+                    fontSize: fontSize
+                },
+                styles: {
+                    cellPadding: cellPadding,
+                    overflow: 'linebreak',
+                    halign: 'left',
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 'auto' },
+                    1: { cellWidth: 'auto', halign: 'right' },
+                    2: { cellWidth: 'auto', halign: 'right' },
+                    3: { cellWidth: 'auto', halign: 'right' }
+                },
+                margin: { left: 14, right: 14 },
+                tableWidth: 'auto'
+            });
+            
+            currentY = doc.lastAutoTable.finalY + 10;
+            
+            // 3. Roasted Coffee Details
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Roasted Coffee Details', 14, currentY);
+            currentY += 8;
+            
+            const roastedDetailsData = [];
+            roastedCoffeeDetails.forEach(roasted => {
+                roasted.components.forEach(component => {
+                    roastedDetailsData.push([
+                        roasted.roastedCoffee,
+                        `${component.greenCoffee}: ${component.greenCoffeeNeeded.toFixed(2)} kg`,
+                        `${component.roastedProduced.toFixed(2)} kg`,
+                        `${component.roastingLoss.toFixed(1)}%`
+                    ]);
+                });
+            });
+            
+            doc.autoTable({
+                startY: currentY,
+                head: [
+                    [
+                        { content: 'Roasted Coffee', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Green Coffee Roasted', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Roasted Coffee Output', styles: { fontStyle: 'bold', halign: 'center' } },
+                        { content: 'Roasting Loss', styles: { fontStyle: 'bold', halign: 'center' } }
+                    ]
+                ],
+                body: roastedDetailsData,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: headerColor,
+                    textColor: primaryColor,
+                    fontStyle: 'bold',
+                    fontSize: headerFontSize
+                },
+                bodyStyles: {
+                    textColor: primaryColor,
+                    fontSize: fontSize
+                },
+                styles: {
+                    cellPadding: cellPadding,
+                    overflow: 'linebreak',
+                    halign: 'left',
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 'auto' },
+                    1: { cellWidth: 'auto' },
+                    2: { cellWidth: 'auto', halign: 'right' },
+                    3: { cellWidth: 'auto', halign: 'right' }
+                },
+                margin: { left: 14, right: 14 },
+                tableWidth: 'auto'
+            });
+            
+            currentY = doc.lastAutoTable.finalY + 10;
+            
+            // 4. Machine Allocation
+            if (Object.keys(roasterPlan).length > 0) {
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Machine Allocation', 14, currentY);
+                currentY += 5;
+                
+                // Calculate total batches
+                let totalBatches = 0;
+                for (const machineName in roasterPlan) {
+                    for (const coffee in roasterPlan[machineName].batches) {
+                        totalBatches += roasterPlan[machineName].batches[coffee];
+                    }
+                }
+                
+                doc.setFontSize(12);
+                doc.text(`Total Production Time: ${formatMinutesToHours(totalProductionTime)}`, 14, currentY);
+                currentY += 5;
+                doc.text(`Total Batches Across All Machines: ${totalBatches}`, 14, currentY);
+                currentY += 8;
+                
+                for (const [machineName, planData] of Object.entries(roasterPlan)) {
+                    if (currentY > 250) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
+                    
+                    const machine = data.machines.find(m => m.name === machineName);
+                    
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`${machineName}`, 14, currentY);
+                    currentY += 5;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Min: ${machine.minBatchSize} kg | Max: ${machine.batchSize} kg | Available Hours: ${machine.hoursAvailable}`, 14, currentY);
+                    currentY += 5;
+                    doc.text(`Total: ${planData.total.toFixed(2)} kg | Batches: ${Object.values(planData.batches).reduce((a, b) => a + b, 0)} | Roasting Time: ${formatMinutesToHours(planData.roastingTime)}`, 14, currentY);
+                    currentY += 5;
+                    
+                    const planTableData = [];
+                    // Only show green coffees with quantity > 0
+                    for (const [coffee, qty] of Object.entries(planData.details)) {
+                        if (qty > 0) {
+                            const batches = planData.batches[coffee];
+                            const batchSizes = planData.batchDetails[coffee] || 'N/A';
+                            const roastingTime = batches * AVERAGE_ROAST_TIME_PER_BATCH;
+                            const roastedOutput = planData.roastedOutput[coffee] || 0;
+                            
+                            planTableData.push([
+                                coffee,
+                                `${qty.toFixed(2)} kg`,
+                                `${roastedOutput.toFixed(2)} kg`,
+                                batches,
+                                batchSizes,
+                                formatMinutesToHours(roastingTime)
+                            ]);
+                        }
+                    }
+                    
+                    doc.autoTable({
+                        startY: currentY,
+                        head: [
+                            [
+                                { content: 'Green Coffee', styles: { fontStyle: 'bold', halign: 'center' } },
+                                { content: 'Green Quantity', styles: { fontStyle: 'bold', halign: 'center' } },
+                                { content: 'Roasted Output', styles: { fontStyle: 'bold', halign: 'center' } },
+                                { content: 'Batches', styles: { fontStyle: 'bold', halign: 'center' } },
+                                { content: 'Batch Sizes', styles: { fontStyle: 'bold', halign: 'center' } },
+                                { content: 'Roasting Time', styles: { fontStyle: 'bold', halign: 'center' } }
+                            ]
+                        ],
+                        body: planTableData,
+                        theme: 'grid',
+                        headStyles: { 
+                            fillColor: headerColor,
+                            textColor: primaryColor,
+                            fontStyle: 'bold',
+                            fontSize: headerFontSize
+                        },
+                        bodyStyles: {
+                            textColor: primaryColor,
+                            fontSize: fontSize
+                        },
+                        styles: {
+                            cellPadding: cellPadding,
+                            overflow: 'linebreak',
+                            halign: 'left',
+                            valign: 'middle'
+                        },
+                        columnStyles: {
+                            0: { cellWidth: 'auto' },
+                            1: { cellWidth: 'auto', halign: 'right' },
+                            2: { cellWidth: 'auto', halign: 'right' },
+                            3: { cellWidth: 'auto', halign: 'right' },
+                            4: { cellWidth: 'auto' },
+                            5: { cellWidth: 'auto', halign: 'right' }
+                        },
+                        margin: { left: 14, right: 14 },
+                        tableWidth: 'auto'
+                    });
+                    
+                    currentY = doc.lastAutoTable.finalY + 10;
+                }
+            }
+            
+            // Save the PDF
+            doc.save(filename);
+        }
+    </script>
+</body>
+</html>
